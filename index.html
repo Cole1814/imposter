@@ -1,90 +1,124 @@
-import random
-import time
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainrot Imposter</title>
+<style>
+body { font-family: Arial; background:#1e1e2f; color:white; text-align:center; padding:20px;}
+button { padding:10px 20px; margin:10px; border:none; border-radius:10px; background:#ff4d6d; color:white; cursor:pointer;}
+button:hover { background:#ff1e3c;}
+.container { max-width:500px; margin:auto; background:#2e2e44; padding:30px; border-radius:15px;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🧠 Brainrot Imposter 🧠</h1>
 
-# ===== PLAYERS =====
-players = ["Player 1", "Player 2", "Player 3", "Player 4"]
+<div id="game">
+    <div id="role-screen">
+        <p id="role-text"></p>
+        <button id="next-btn">Next</button>
+    </div>
 
-# ===== 100+ BRAINROT WORDS =====
-brainrot_words = [
-    "Skibidi", "Sigma", "Ohio Final Boss", "Fanum Tax", "NPC", "Gyatt",
-    "Rizz", "Kai Cenat", "Adin Ross", "Wocky Slush", "Grimace Shake",
-    "Level 10 Gyatt", "Sus", "Bussin", "Mid", "Cooked", "Let him cook",
-    "Based", "Cringe", "Bro fell off", "No cap", "On god", "Fr fr",
-    "Lowkey", "Highkey", "Caught lacking", "Blud", "Nah jit trippin",
-    "Zesty", "Glizzy", "Sheesh", "Side eye", "Bombastic side eye",
-    "Digital footprint", "Goofy ahh", "Slay", "Ate", "Not the",
-    "Main character", "NPC walk", "He tweakin", "Menace",
-    "Ohio vs the world", "Core memory", "It's giving",
-    "Bro thinks he's him", "Himothy", "Sussy baka",
-    "Skill issue", "Cope", "Seethe", "Ratio", "Touch grass",
-    "Ick", "Gaslight", "Gatekeep", "Girlboss", "Brainrot",
-    "Absolute cinema", "Canon event", "Delulu",
-    "Bro is yapping", "Hard watch", "W take", "L take",
-    "Unhinged", "Fermented", "Ain't no way", "Wild",
-    "Certified hood classic", "NPC dialogue",
-    "Default settings", "Factory reset",
-    "He cooked", "Let bro cook", "Bro burnt it",
-    "Peak", "Mid behavior", "Down bad",
-    "Chat is this real", "We live we love we lie",
-    "Lore drop", "Character arc", "Villain era",
-    "Sigma silence", "Bro spawned in",
-    "IRL side quest", "Main quest energy"
-]
+    <div id="questions-screen" style="display:none;">
+        <p id="question-text"></p>
+        <button id="next-question">Next Question</button>
+    </div>
 
-# ===== GAME SETUP =====
-word = random.choice(brainrot_words)
-imposter = random.choice(players)
+    <div id="voting-screen" style="display:none;">
+        <p>Vote for the Imposter:</p>
+        <div id="vote-buttons"></div>
+    </div>
 
-print("\n🧠 IMPOSTER: BRAINROT EDITION 🧠")
-print("4 Players | 1 Imposter")
-print("GitHub Safe Version\n")
-time.sleep(1)
+    <div id="results-screen" style="display:none;">
+        <p id="results-text"></p>
+        <button id="restart-btn">Restart Game</button>
+    </div>
+</div>
+</div>
 
-# ===== ROLE REVEAL =====
-for p in players:
-    input(f"{p}, press ENTER to see your role (others look away) 👀")
-    print("\n" * 40)
+<script>
+// ===== PLAYERS =====
+const players = ["Player 1","Player 2","Player 3","Player 4"];
+let currentPlayer = 0;
 
-    if p == imposter:
-        print("💀 YOU ARE THE IMPOSTER 💀")
-        print("You do NOT know the word.")
-    else:
-        print("✅ YOU ARE A NORMIE")
-        print(f"🧠 The brainrot word is: {word}")
+// ===== 100+ BRAINROT WORDS =====
+const brainrotWords = ["Skibidi","Sigma","Ohio Final Boss","Fanum Tax","NPC","Gyatt","Rizz","Kai Cenat","Adin Ross","Wocky Slush","Grimace Shake","Level 10 Gyatt","Sus","Bussin","Mid","Cooked","Let him cook","Based","Cringe","Bro fell off","No cap","On god","Fr fr","Lowkey","Highkey","Caught lacking","Blud","Nah jit trippin","Zesty","Glizzy","Sheesh","Side eye","Bombastic side eye","Digital footprint","Goofy ahh","Slay","Ate","Not the","Main character","NPC walk","He tweakin","Menace","Ohio vs the world","Core memory","It's giving","Bro thinks he's him","Himothy","Sussy baka","Skill issue","Cope","Seethe","Ratio","Touch grass","Ick","Gaslight","Gatekeep","Girlboss","Brainrot","Absolute cinema","Canon event","Delulu","Bro is yapping","Hard watch","W take","L take","Unhinged","Fermented","Ain't no way","Wild","Certified hood classic","NPC dialogue","Default settings","Factory reset","He cooked","Let bro cook","Bro burnt it","Peak","Mid behavior","Down bad","Chat is this real","We live we love we lie","Lore drop","Character arc","Villain era","Sigma silence","Bro spawned in","IRL side quest","Main quest energy"];
 
-    input("\nPress ENTER when done")
-    print("\n" * 40)
+// ===== GAME VARIABLES =====
+let imposter = players[Math.floor(Math.random()*players.length)];
+let word = brainrotWords[Math.floor(Math.random()*brainrotWords.length)];
+let votes = {};
+const questions = ["When do people use this word?","Is it cringe or sigma? Why?","Describe the word without saying it."];
+let currentQuestion = 0;
 
-# ===== QUESTIONS =====
-questions = [
-    "When do people use this word?",
-    "Is it cringe or sigma? Why?",
-    "Describe the word without saying it."
-]
+// ===== DOM =====
+const roleText = document.getElementById("role-text");
+const nextBtn = document.getElementById("next-btn");
+const roleScreen = document.getElementById("role-screen");
+const questionsScreen = document.getElementById("questions-screen");
+const questionText = document.getElementById("question-text");
+const nextQuestionBtn = document.getElementById("next-question");
+const votingScreen = document.getElementById("voting-screen");
+const voteButtonsDiv = document.getElementById("vote-buttons");
+const resultsScreen = document.getElementById("results-screen");
+const resultsText = document.getElementById("results-text");
+const restartBtn = document.getElementById("restart-btn");
 
-print("🎤 ANSWER OUT LOUD 🎤\n")
+// ===== FUNCTIONS =====
+function showRole(){
+    if(currentPlayer>=players.length){ roleScreen.style.display="none"; startQuestions(); return; }
+    let p = players[currentPlayer];
+    if(p===imposter){ roleText.textContent=`${p}, 💀 YOU ARE THE IMPOSTER. You do NOT know the word.`;}
+    else{ roleText.textContent=`${p}, ✅ YOU ARE A NORMIE. The brainrot word is: ${word}`;}
+}
 
-for q in questions:
-    print("QUESTION:", q)
-    input("Press ENTER after everyone answers...\n")
+nextBtn.addEventListener("click",()=>{
+    currentPlayer++;
+    showRole();
+});
 
-# ===== VOTING =====
-print("🗳️ TIME TO VOTE 🗳️")
-votes = {}
+function startQuestions(){
+    questionsScreen.style.display="block";
+    questionText.textContent=questions[currentQuestion];
+}
 
-for p in players:
-    vote = input(f"{p}, who do you vote for? ").strip()
-    votes[vote] = votes.get(vote, 0) + 1
+nextQuestionBtn.addEventListener("click",()=>{
+    currentQuestion++;
+    if(currentQuestion<questions.length){ questionText.textContent=questions[currentQuestion]; }
+    else{ questionsScreen.style.display="none"; startVoting(); }
+});
 
-# ===== RESULTS =====
-voted_out = max(votes, key=votes.get)
+function startVoting(){
+    votingScreen.style.display="block";
+    voteButtonsDiv.innerHTML="";
+    players.forEach(p=>{
+        let btn=document.createElement("button");
+        btn.textContent=p;
+        btn.addEventListener("click",()=>castVote(p));
+        voteButtonsDiv.appendChild(btn);
+    });
+}
 
-print("\n🔥 RESULTS 🔥")
-print(f"{voted_out} was voted out!")
+function castVote(player){
+    votes[player]=(votes[player]||0)+1;
+    if(Object.values(votes).reduce((a,b)=>a+b,0)===players.length){ showResults(); }
+    else{ alert(`${player} got a vote! (Next player votes)`); }
+}
 
-if voted_out == imposter:
-    print("🎉 NORMIES WIN 🎉")
-else:
-    print("💀 IMPOSTER WINS 💀")
-    print(f"The Imposter was: {imposter}")
-    print(f"The word was: {word}")
+function showResults(){
+    votingScreen.style.display="none";
+    resultsScreen.style.display="block";
+    let voted_out=Object.keys(votes).reduce((a,b)=>votes[a]>votes[b]?a:b);
+    let winner = voted_out===imposter ? "🎉 NORMIES WIN! 🎉" : "💀 IMPOSTER WINS! 💀";
+    resultsText.innerHTML=`Voted out: ${voted_out}<br>Imposter: ${imposter}<br>Word: ${word}<br>${winner}`;
+}
+
+restartBtn.addEventListener("click",()=>location.reload());
+
+// ===== INIT GAME =====
+showRole();
+</script>
+</body>
+</html>
